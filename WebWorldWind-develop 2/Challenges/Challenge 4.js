@@ -1,35 +1,5 @@
-/*
- * Copyright 2003-2006, 2009, 2017, 2020 United States Government, as represented
- * by the Administrator of the National Aeronautics and Space Administration.
- * All rights reserved.
- *
- * The NASAWorldWind/WebWorldWind platform is licensed under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License
- * at http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed
- * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
- * CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * NASAWorldWind/WebWorldWind also contains the following 3rd party Open Source
- * software:
- *
- *    ES6-Promise – under MIT License
- *    libtess.js – SGI Free Software License B
- *    Proj4 – under MIT License
- *    JSZip – under MIT License
- *
- * A complete listing of 3rd Party software notices and licenses included in
- * WebWorldWind can be found in the WebWorldWind 3rd-party notices and licenses
- * PDF found in code  directory.
- */
-/**
- * Illustrates how to display and pick Placemarks.
- */
-requirejs(['./WorldWindShim',
-        './LayerManager'],
+requirejs(['../examples/WorldWindShim',
+        '../examples/LayerManager'],
     function (WorldWind,
               LayerManager) {
         "use strict";
@@ -63,38 +33,20 @@ requirejs(['./WorldWindShim',
         var images = [
             "plain-black.png",
             "plain-blue.png",
-            "plain-brown.png",
-            "plain-gray.png",
-            "plain-green.png",
-            "plain-orange.png",
-            "plain-purple.png",
-            "plain-red.png",
-            "plain-teal.png",
-            "plain-white.png",
-            "plain-yellow.png",
-            "castshadow-black.png",
-            "castshadow-blue.png",
-            "castshadow-brown.png",
-            "castshadow-gray.png",
-            "castshadow-green.png",
-            "castshadow-orange.png",
-            "castshadow-purple.png",
-            "castshadow-red.png",
-            "castshadow-teal.png",
-            "castshadow-white.png"
+            "plain-white.png"
         ];
 
         var pinLibrary = WorldWind.configuration.baseUrl + "images/pushpins/", // location of the image files
             placemark,
             placemarkAttributes = new WorldWind.PlacemarkAttributes(null),
             highlightAttributes,
-            placemarkLayer = new WorldWind.RenderableLayer("Placemarks"),
-            latitude = 47.684444,
-            longitude = -121.129722;
-
-
+            placemarkLayer = new WorldWind.RenderableLayer("Placemarks");
+        var latitude = [];
+        var longitude = [];
+        latitude = [21.0278, 32.8032, 41.4459];
+        longitude = [105.8342, 130.7079, -74.4229];
         // Set up the common placemark attributes.
-        placemarkAttributes.imageScale = 1;
+        placemarkAttributes.imageScale = 5;
         placemarkAttributes.imageOffset = new WorldWind.Offset(
             WorldWind.OFFSET_FRACTION, 0.3,
             WorldWind.OFFSET_FRACTION, 0.0);
@@ -109,7 +61,8 @@ requirejs(['./WorldWindShim',
         // For each placemark image, create a placemark with a label.
         for (var i = 0, len = images.length; i < len; i++) {
             // Create the placemark and its label.
-            placemark = new WorldWind.Placemark(new WorldWind.Position(latitude, longitude + i, 1e2), true, null);
+            placemark = new WorldWind.Placemark(new WorldWind.Position(latitude[i], longitude[i], 1e2), true, null);
+            console.log(placemark);
             placemark.label = "Placemark " + i.toString() + "\n"
                 + "Lat " + placemark.position.latitude.toPrecision(4).toString() + "\n"
                 + "Lon " + placemark.position.longitude.toPrecision(5).toString();
@@ -125,7 +78,7 @@ requirejs(['./WorldWindShim',
             // the default highlight attributes so that all properties are identical except the image scale. You could
             // instead vary the color, image, or other property to control the highlight representation.
             highlightAttributes = new WorldWind.PlacemarkAttributes(placemarkAttributes);
-            highlightAttributes.imageScale = 1.2;
+            highlightAttributes.imageScale = 6;
             placemark.highlightAttributes = highlightAttributes;
 
             // Add the placemark to the layer.
@@ -177,8 +130,48 @@ requirejs(['./WorldWindShim',
                     if (pickList.objects[p].labelPicked) {
                         console.log("Label picked");
                     }
+
+                    //1st placemark
+                    if (pickList.objects[p].position.longitude === longitude[0]) {
+                        document.getElementById("mmodal").style.visibility = "visible";
+                    };
+
+                    //close 1st placemark
+                    var close = document.getElementsByClassName("close");
+                    var closem = function () {
+                        document.getElementById("mmodal").style.visibility = "hidden";
+                    }
+                    close[0].addEventListener("click", closem);
+                    console.log(close);
+
+
+                    //2nd placemark
+                    if (pickList.objects[p].position.longitude === longitude[1]) {
+                        document.getElementById("kmodal").style.visibility = "visible";
+                    };
+                    //close placemark 2
+                    var close = document.getElementsByClassName("close");
+                    var closek = function () {
+                        document.getElementById("kmodal").style.visibility = "hidden";
+                    }
+                    close[1].addEventListener("click", closek);
+
+
+                    // //3rd placemark
+                    //
+                    // if (pickList.objects[p].position.longitude === longitude[2]) {
+                    //     document.getElementById("lmodal").style.visibility = "visible";
+                    // };
+                    //
+                    // //close placemark 3
+                    // var close = document.getElementsByClassName("close");
+                    // var closel = function () {
+                    //     document.getElementById("lmodal").style.visibility = "hidden";
+                    // }
+                    // close[2].addEventListener("click", closel);
                 }
             }
+            // put one placemark on Kumamoto and Middletown NY
 
             // Update the window if we changed anything.
             if (redrawRequired) {
@@ -188,6 +181,67 @@ requirejs(['./WorldWindShim',
 
         // Listen for mouse moves and highlight the placemarks that the cursor rolls over.
         wwd.addEventListener("click", handlePick);
+
+        var handleMove = function (o) {
+            // The input argument is either an Event or a TapRecognizer. Both have the same properties for determining
+            // the mouse or tap location.
+            var x = o.clientX,
+                y = o.clientY;
+
+            var redrawRequired = highlightedItems.length > 0; // must redraw if we de-highlight previously picked items
+
+            // De-highlight any previously highlighted placemarks.
+            for (var h = 0; h < highlightedItems.length; h++) {
+                highlightedItems[h].highlighted = false;
+            }
+            highlightedItems = [];
+
+            // Perform the pick. Must first convert from window coordinates to canvas coordinates, which are
+            // relative to the upper left corner of the canvas rather than the upper left corner of the page.
+            var pickLists = wwd.pick(wwd.canvasCoordinates(x, y));
+            console.log(pickLists)
+            if (pickLists.objects.length > 0) {
+                redrawRequired = true;
+            }
+
+            // Highlight the items picked by simply setting their highlight flag to true.
+            if (pickLists.objects.length > 0) {
+                for (var p = 0; p < pickLists.objects.length; p++) {
+                    pickLists.objects[p].userObject.highlighted = true;
+
+                    // Keep track of highlighted items in order to de-highlight them later.
+                    highlightedItems.push(pickLists.objects[p].userObject);
+
+                    // Detect whether the placemark's label was picked. If so, the "labelPicked" property is true.
+                    // If instead the user picked the placemark's image, the "labelPicked" property is false.
+                    // Applications might use this information to determine whether the user wants to edit the label
+                    // or is merely picking the placemark as a whole.
+                    if (pickLists.objects[p].labelPicked) {
+                        console.log("Label picked");
+                    }
+
+                    //3rd placemark
+
+                    if (pickLists.objects[p].position.longitude === longitude[2]) {
+                        document.getElementById("lmodal").style.visibility = "visible";
+                    };
+
+                    //close placemark 3
+                    var close = document.getElementsByClassName("close");
+                    var closel = function () {
+                        document.getElementById("lmodal").style.visibility = "hidden";
+                    }
+                    close[2].addEventListener("click", closel);
+                }
+            }
+            // put one placemark on Kumamoto and Middletown NY
+
+            // Update the window if we changed anything.
+            if (redrawRequired) {
+                wwd.redraw(); // redraw to make the highlighting changes take effect on the screen
+            }
+        };
+        wwd.addEventListener("mousemove", handleMove);
 
         // Listen for taps on mobile devices and highlight the placemarks that the user taps.
         var tapRecognizer = new WorldWind.TapRecognizer(wwd, handlePick);
