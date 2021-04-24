@@ -1,7 +1,9 @@
+
+
+
 requirejs(['../examples/WorldWindShim',
         '../examples/LayerManager'],
-    function (WorldWind,
-              LayerManager) {
+    function (WorldWind, LayerManager) {
         "use strict";
 
         // Tell WorldWind to log only warnings and errors.
@@ -45,6 +47,16 @@ requirejs(['../examples/WorldWindShim',
         var longitude = [];
         latitude = [21.0278, 32.8032, 41.4459];
         longitude = [105.8342, 130.7079, -74.4229];
+
+        //toggle to hide and open placemark
+        document.getElementById("check1").addEventListener("change", function(){
+            if (this.checked){
+            placemarkLayer.enabled = true;
+            } else {
+                placemarkLayer.enabled = false;
+            }
+        });
+
         // Set up the common placemark attributes.
         placemarkAttributes.imageScale = 5;
         placemarkAttributes.imageOffset = new WorldWind.Offset(
